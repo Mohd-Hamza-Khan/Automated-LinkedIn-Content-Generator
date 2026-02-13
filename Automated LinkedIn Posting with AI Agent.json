@@ -1,0 +1,363 @@
+{
+  "name": "Automated LinkedIn Posting with AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs",
+          "mode": "list",
+          "cachedResultName": "n8n demo workbook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "linkedin post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "To Do"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {
+          "returnAllMatches": "returnFirstMatch"
+        }
+      },
+      "id": "bfc3e13b-fc4c-4a2d-bbb2-afca6f597b17",
+      "name": "Read Topics",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        48,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fv8uq8JyAuphFX77",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"What are the latest update on {{ $json['Rough Topic name'] }} \",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 3,\n  \"topic\": \"general\",\n  \"time_range\": null,\n  \"start_date\": \"2026-01-01\",\n  \"end_date\": \"{{$now.format('yyyy-MM-dd')}}\",\n  \"include_answer\": false,\n  \"include_raw_content\": false,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null,\n  \"auto_parameters\": false,\n  \"include_usage\": false\n} ",
+        "options": {}
+      },
+      "id": "61204880-a566-4a06-91e2-14be804bb053",
+      "name": "Tavily Research",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        304,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs",
+          "mode": "list",
+          "cachedResultName": "n8n demo workbook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "linkedin post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1czgsKKFsYSh8G4scDwzdmb1tvoeg29fJwY9Sk12uLYs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rough Topic name": "={{ $('Read Topics').item.json['Rough Topic name'] }}",
+            "Status": "Done",
+            "Topic name (Linkedin Post)": "={{ $json.output.articles[0].title }}",
+            "Article content": "={{ $json.output.articles[0].content }}"
+          },
+          "matchingColumns": [
+            "Rough Topic name"
+          ],
+          "schema": [
+            {
+              "id": "Rough Topic name",
+              "displayName": "Rough Topic name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Topic name (Linkedin Post)",
+              "displayName": "Topic name (Linkedin Post)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Article content",
+              "displayName": "Article content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "35ec9725-e532-44a8-83f6-a7074a31cec7",
+      "name": "Update Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        848,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "fv8uq8JyAuphFX77",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic for LinkedIn post: {{ $('Read Topics').item.json['Rough Topic name'] }}\n\nReference titles and articles\n\nTitle 1: {{ $json.results[0].title }}\nArticle 1:  {{ $json.results[0].content }}\nURL 1: {{ $json.results[0].url }}\n\nTitle 2: {{ $json.results[1].title }}\nArticle 2:  {{ $json.results[1].content }}\nURL 2: {{ $json.results[1].url }}\n\nTitle 3: {{ $json.results[2].title }}\nArticle 3:  {{ $json.results[2].content }}\nURL 3: {{ $json.results[2].url }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Role\nAct like a LinkedIn expert who specialize in generating\nLinkedIn friendly content. Your content is engaging for the audience and has a tendency to go viral.\n\n# To do \n- You'll get 3 references which will include title of the article, parsed content which is relevant to the topic of post, \nURL from which content is parsed.\n- Using all this information, you have generate a linkedIn friendly post which will get us engagement so that we can have an active profile.\n\n# Output \n- Return the title and the content of the article as, \nTitle:\nContent:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        512,
+        -112
+      ],
+      "id": "313c8767-30f2-4d85-a30a-23a930fdbb64",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        96
+      ],
+      "id": "10c315af-6971-49d1-ad8c-876e460328a5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dxxaeCOwTnbbwtGS",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"state\": {\n      \"type\": \"string\",\n      \"description\": \"Topic or category name\"\n    },\n    \"articles\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\"\n          },\n          \"content\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\"title\", \"content\"],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\"state\", \"articles\"],\n  \"additionalProperties\": false\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        96
+      ],
+      "id": "e0177491-5511-4bf8-8eb2-27093c6655ba",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "f1aba789-ebb6-4c3f-a3bc-6f4a93fd64c3",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "person": "urn:li:person:mohd-hamza-khan",
+        "text": "=Title: {{ $json['Topic name (Linkedin Post)'] }}  Today I want to talk about : {{ $json['Article content'] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -112
+      ],
+      "id": "6a2d37c3-3f65-4fb0-976b-69f912269ba4",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "sHlDz3dxnR0ihfxm",
+          "name": "LinkedIn account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read Topics": {
+      "main": [
+        [
+          {
+            "node": "Tavily Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Sheet": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Research": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3d87c047-c4e4-4d26-91bc-59fcfc2b714d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2980d7703fe32f0b88d7f97d4bbf340a63a9f17c2ed5bfeeac2cea23c4541ccb"
+  },
+  "id": "A43wYXLkLogrDW4WmeTUH",
+  "tags": []
+}
