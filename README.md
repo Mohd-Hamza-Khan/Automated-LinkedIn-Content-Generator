@@ -43,3 +43,7 @@ flowchart LR
     D --> E[Structured Output Parser]
     E --> F[Update Sheet (Google Sheets)]
     F --> G[Create LinkedIn Post]
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
